@@ -1,93 +1,199 @@
-# frogbot-scan
+## 1.Create gitlab project
+![](2024-05-08-13-17-58.png)
+![](2024-05-08-13-18-06.png)
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+## 2.Download maven project and copy to your  project of frogbot-scan 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/sunshine04178/frogbot-scan.git
-git branch -M main
-git push -uf origin main
+git clone https://gitlab.com/sunshine04178/frogbot-scan.git  (your project address)
+unzip project-examples-master.zip
+mv project-examples-master/maven-examples/maven-example/*
+/Users/hailangz/test/frogbot-scan
 ```
 
-## Integrate with your tools
+## 3.Add yml
+```
+cd /Users/hailangz/test/frogbot-scan
 
-- [ ] [Set up project integrations](https://gitlab.com/sunshine04178/frogbot-scan/-/settings/integrations)
+vim .gitlab-ci.yml
+```
+```
+frogbot-scan:
+image: maven:3.6.3
+rules:
+- if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+when: manual
+variables:
+FROGBOT_CMD: "scan-pull-request"
+JF_GIT_BASE_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+# Repository scanning is triggered by any push to the default branch.
+# If you'd like a different branch to be scanned, replace $CI_DEFAULT_BRANCH in the line below with the name of the branch, wrapped with quotes (").
+- if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "schedule"
+variables:
+FROGBOT_CMD: "scan-repository"
+JF_GIT_BASE_BRANCH: $CI_COMMIT_BRANCH
+variables:
+# [Mandatory]
+# JFrog platform URL (This functionality requires version 3.29.0 or above of Xray)
+JF_URL: $JF_URL
+# [Mandatory if JF_USER and JF_PASSWORD are not provided]
+# JFrog access token with 'read' permissions for Xray
+JF_ACCESS_TOKEN: $JF_ACCESS_TOKEN
+# [Mandatory if JF_ACCESS_TOKEN is not provided]
+# JFrog user and password with 'read' permissions for Xray
+# JF_USER: $JF_USER
+# JF_PASSWORD: $JF_PASSWORD
+# [Mandatory]
+# GitLab access token. Ensure the token has the following permissions, depedending on your GiLab deployment type:
+# Self hosted: api, read_api, read_user, read_repository.
+# Cloud: api, read_api, read_repository
+JF_GIT_TOKEN: $USER_TOKEN
+# Predefined GitLab variables. There's no need to set them.
+JF_GIT_PROVIDER: gitlab
+JF_GIT_OWNER: $CI_PROJECT_NAMESPACE
+JF_GIT_REPO: $CI_PROJECT_NAME
+JF_GIT_PULL_REQUEST_ID: $CI_MERGE_REQUEST_IID
+# [Optional, default: https://gitlab.com]
+# API endpoint to GitLab
+# JF_GIT_API_ENDPOINT: https://gitlab.example.com
+# [Optional]
+# By default, the Frogbot workflows download the Frogbot executable as well as other tools 
+# needed from https://releases.jfrog.io
+# If the machine that runs Frogbot has no access to the internet, follow these steps to allow the
+# executable to be downloaded from an Artifactory instance, which the machine has access to: 
+#
+# 1. Login to the Artifactory UI, with a user who has admin credentials.
+# 2. Create a Remote Repository with the following properties set.
+# Under the 'Basic' tab:
+# Package Type: Generic
+# URL: https://releases.jfrog.io
+# Under the 'Advanced' tab:
+# Uncheck the 'Store Artifacts Locally' option
+# 3. Set the value of the 'JF_RELEASES_REPO' variable with the Repository Key you created.
+# JF_RELEASES_REPO: ""
+# [Optional]
+# Configure the SMTP server to enable Frogbot to send emails with detected secrets in pull request scans.
+# SMTP server URL including should the relevant port: (Example: smtp.server.com:8080)
+# JF_SMTP_SERVER: ""
+# [Mandatory if JF_SMTP_SERVER is set]
+# The username required for authenticating with the SMTP server.
+# JF_SMTP_USER: ""
+# [Mandatory if JF_SMTP_SERVER is set]
+# The password associated with the username required for authentication with the SMTP server.
+# JF_SMTP_PASSWORD: ""
+###########################################################################
+## If your project uses a 'frogbot-config.yml' file, you should define ##
+## the following variables inside the file, instead of here. ##
+###########################################################################
+# [Mandatory if the two conditions below are met]
+# 1. The project uses yarn 2, NuGet, or .NET to download its dependencies
+# 2. The `installCommand` variable isn't set in your frogbot-config.yml file.
+#
+# The command that installs the project dependencies (e.g "nuget restore")
+JF_INSTALL_DEPS_CMD: ""
+# [Optional, default: "."]
+# Relative path to the root of the project in the Git repository
+# JF_WORKING_DIR: path/to/project/dir
+# [Default: "*.git*;*node_modules*;*target*;*venv*;*test*"]
+# List of exclusion patterns (utilizing wildcards) for excluding paths in the source code of the Git repository during SCA scans.
+# JF_PATH_EXCLUSIONS: "*.git*;*node_modules*;*target*;*venv*;*test*"
+# [Optional]
+# Xray Watches. Learn more about them here: https://www.jfrog.com/confluence/display/JFROG/Configuring+Xray+Watches
+# JF_WATCHES: <watch-1>,<watch-2>...<watch-n>
+# [Optional]
+# JFrog project. Learn more about it here: https://www.jfrog.com/confluence/display/JFROG/Projects
+# JF_PROJECT: <project-key>
+# [Optional, default: "FALSE"]
+# Displays all existing vulnerabilities, including the ones that were added by the pull request.
+# JF_INCLUDE_ALL_VULNERABILITIES: "TRUE"
+# [Optional, default: "FALSE"]
+# When adding new comments on pull requests, keep old comments that were added by previous scans.
+# JF_AVOID_PREVIOUS_PR_COMMENTS_DELETION: "TRUE"
+# [Optional, default: "TRUE"]
+# Fails the Frogbot task if any security issue is found.
+# JF_FAIL: "FALSE"
+# [Optional]
+# Relative path to a Pip requirements.txt file. If not set, the Python project's dependencies are determined and scanned using the project setup.py file.
+# JF_REQUIREMENTS_FILE: ""
+# [Optional, Default: "TRUE"]
+# Use Gradle wrapper.
+# JF_USE_WRAPPER: "FALSE"
+# [Optional]
+# Frogbot will download the project dependencies if they're not cached locally. To download the
+# dependencies from a virtual repository in Artifactory, set the name of the repository. There's no
+# need to set this value, if it is set in the frogbot-config.yml file.
+# JF_DEPS_REPO: ""
+# [Optional]
+# Template for the branch name generated by Frogbot when creating pull requests with fixes.
+# The template must include ${BRANCH_NAME_HASH}, to ensure that the generated branch name is unique.
+# The template can optionally include the ${IMPACTED_PACKAGE} and ${FIX_VERSION} variables.
+# JF_BRANCH_NAME_TEMPLATE: "frogbot-${IMPACTED_PACKAGE}-${BRANCH_NAME_HASH}"
+# [Optional]
+# Template for the commit message generated by Frogbot when creating pull requests with fixes
+# The template can optionally include the ${IMPACTED_PACKAGE} and ${FIX_VERSION} variables.
+# JF_COMMIT_MESSAGE_TEMPLATE: "Upgrade ${IMPACTED_PACKAGE} to ${FIX_VERSION}"
+# [Optional]
+# Template for the pull request title generated by Frogbot when creating pull requests with fixes.
+# The template can optionally include the ${IMPACTED_PACKAGE} and ${FIX_VERSION} variables.
+# JF_PULL_REQUEST_TITLE_TEMPLATE: "[🐸 Frogbot] Upgrade ${IMPACTED_PACKAGE} to ${FIX_VERSION}"
+# [Optional, Default: "FALSE"]
+# If TRUE, Frogbot creates a single pull request with all the fixes.
+# If FALSE, Frogbot creates a separate pull request for each fix.
+# JF_GIT_AGGREGATE_FIXES: "FALSE"
+# [Optional, Default: "FALSE"]
+# Handle vulnerabilities with fix versions only
+# JF_FIXABLE_ONLY: "TRUE"
+# [Optional]
+# Set the minimum severity for vulnerabilities that should be fixed and commented on in pull requests
+# The following values are accepted: Low, Medium, High, or Critical
+# JF_MIN_SEVERITY: ""
+# [Optional, Default: eco-system+frogbot@jfrog.com]
+# Set the email of the commit author
+# JF_GIT_EMAIL_AUTHOR: ""
+# [Optional]
+# List of comma-separated(,) email addresses to receive email notifications about secrets
+# detected during pull request scanning. The notification is also sent to the email set
+# in the committer git profile regardless of whether this variable is set or not.
+# JF_EMAIL_RECEIVERS: ""
+# [Optional]
+# Set the list of allowed licenses
+# The full list of licenses can be found in:
+# https://github.com/jfrog/frogbot/blob/master/docs/licenses.md
+# JF_ALLOWED_LICENSES: "MIT, Apache-2.0"
+# [Optional]
+# Avoid adding extra info to pull request comments. that isn't related to the scan findings.
+# JF_AVOID_EXTRA_MESSAGES: "TRUE"
+# [Optional]
+# Add a title to pull request comments generated by Frogbot.
+# JF_PR_COMMENT_TITLE: ""
+script:
+# For Linux / MacOS runner:
+- |
+getFrogbotScriptPath=$(if [ -z "$JF_RELEASES_REPO" ]; then echo "https://releases.jfrog.io"; else echo "${JF_URL}/artifactory/${JF_RELEASES_REPO}"; fi)
+curl -fLg "$getFrogbotScriptPath/artifactory/frogbot/v2/[RELEASE]/getFrogbot.sh" | sh
+./frogbot ${FROGBOT_CMD}
+# For Windows runner:
+# 
+# - $getFrogbotScriptPath = $(if ([string]::IsNullOrEmpty($env:JF_RELEASES_REPO)) { "https://releases.jfrog.io" } else { "$($env:JF_URL)/artifactory/$($env:JF_RELEASES_REPO)" })
+# - Invoke-WebRequest -Uri "$getFrogbotScriptPath/artifactory/frogbot/v2/[RELEASE]/getFrogbot.sh" -UseBasicParsing | ForEach-Object { & $_.Content }
+# - .\frogbot ${FROGBOT_CMD}
+```
 
-## Collaborate with your team
+## 4.commit code
+```
+git add .
+git commit ‘init’
+git push
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## 5.config Variables
+![](2024-05-08-13-18-26.png)
 
-## Test and Deploy
+## 6.Run  CI
+![](2024-05-08-13-18-34.png)
+![](2024-05-08-13-18-39.png)
 
-Use the built-in continuous integration in GitLab.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## 7.Check result
 
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+![](2024-05-08-13-18-44.png)
+![](2024-05-08-13-18-48.png)
