@@ -1,1 +1,96 @@
-/.idea/
+# 忽略 IntelliJ IDEA 目录
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# 忽略编译输出目录
+out/
+build/
+
+# 忽略 Maven 的 target 目录
+target/
+
+# 忽略 Gradle 的 build 目录
+.gradle/
+build/
+
+# 忽略日志文件
+*.log
+
+# 忽略临时文件
+*.swp
+*.swo
+*.tmp
+
+# 忽略操作系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略 Java 类文件
+*.class
+
+# 忽略本地环境配置文件
+.env
+
+# 忽略 IntelliJ IDEA 中的工作区文件
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+
+# 忽略 IntelliJ IDEA 中的构建文件
+.idea/artifacts
+
+# 忽略 IntelliJ IDEA 中的库文件
+.idea/libraries
+
+# 忽略 IntelliJ IDEA 中的模块文件
+.idea/modules.xml
+.idea/modules
+.idea/*.iml
+
+# 忽略 IntelliJ IDEA 中的 SVN 文件
+.idea/vcs.xml
+
+# 忽略 IntelliJ IDEA 中的 HTTP 请求文件
+.idea/httpRequests
+
+# 忽略 IntelliJ IDEA 中的 JVM 参数文件
+.idea/runConfigurations
+
+# 忽略 IntelliJ IDEA 中的 JAR 文件
+.idea/jarRepositories.xml
+
+# 忽略运行时生成的文件
+*.pid
+*.seed
+*.pid.lock
+
+# 忽略 JetBrains 的内部生成文件
+.idea/jsLibraryMappings.xml
+.idea/uiDesigner.xml
+.idea/codeStyles
+
+# 忽略 IntelliJ IDEA 的索引文件
+.idea/index-layout.xml
+.idea/php.xml
+.idea/sqlDataSources.xml
+.idea/sqlDataSources.xml
+.idea/datasources.xml
+.idea/datasources.local.xml
+
+# 忽略内置数据库的临时文件
+.idea/datasources/
+.idea/databaseDrivers/
+.idea/dynamic.xml
+.idea/mongoSettings.xml
+
+# 忽略 Kotlin 编译生成的文件
+*.kotlin_module
+
+# 忽略全局库配置
+.idea/libraries/
+
+# 忽略 Java 虚拟机生成的文件
+*.hprof
